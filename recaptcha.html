@@ -3,10 +3,9 @@
   <head>
     <meta charset="UTF-8">
     <title>reCAPTCHA Verification</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js"></script>
+    <!-- Firebase SDKs (Compat Versions) -->
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
     <!-- reCAPTCHA -->
     <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
     <style>
@@ -19,16 +18,16 @@
   <body>
     <div id="recaptcha-container"></div>
     <script>
-      // TODO: Replace with your Firebase project configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCyFS_fUvRgrj6dpjawLb2XHC0Wt0xTbLA",
-    authDomain: "recaptcha-7d3f9.firebaseapp.com",
-    projectId: "recaptcha-7d3f9",
-    storageBucket: "recaptcha-7d3f9.firebasestorage.app",
-    messagingSenderId: "233076713188",
-    appId: "1:233076713188:web:4159dd0a2ba53b6cf8eef1",
-    measurementId: "G-QMVV6TWN1W"
-  };
+      // Your Firebase project configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCyFS_fUvRgrj6dpjawLb2XHC0Wt0xTbLA",
+        authDomain: "recaptcha-7d3f9.firebaseapp.com",
+        projectId: "recaptcha-7d3f9",
+        storageBucket: "recaptcha-7d3f9.appspot.com",
+        messagingSenderId: "233076713188",
+        appId: "1:233076713188:web:4159dd0a2ba53b6cf8eef1",
+        measurementId: "G-QMVV6TWN1W"
+      };
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
@@ -36,30 +35,26 @@
 
       // Initialize reCAPTCHA verifier
       const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        size: 'invisible', // 'normal' or 'invisible'
+        size: 'invisible',
         callback: (response) => {
-          // reCAPTCHA solved, proceed to get the token
           onRecaptchaVerified(response);
         },
         'expired-callback': () => {
-          // Response expired. Reset reCAPTCHA.
           recaptchaVerifier.reset();
         }
       }, auth);
 
-      // Render the reCAPTCHA (necessary for invisible reCAPTCHA)
+      // Render the reCAPTCHA
       recaptchaVerifier.render().then((widgetId) => {
-        // Optionally store the widgetId if needed
+        // Optional: store widgetId
       });
 
-      // Function to handle successful reCAPTCHA verification
+      // Handle successful verification
       function onRecaptchaVerified(token) {
-        // Send the token to the parent window
         window.parent.postMessage({ token: token }, '*');
       }
 
-      // Optionally, trigger reCAPTCHA verification programmatically
-      // For example, upon page load or a specific event
+      // Trigger verification on load
       window.onload = () => {
         recaptchaVerifier.verify().then(onRecaptchaVerified).catch((error) => {
           console.error("reCAPTCHA verification failed:", error);
