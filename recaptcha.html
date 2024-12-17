@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>reCAPTCHA Verification</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <!-- reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
+    <style>
+      /* Hide the reCAPTCHA container */
+      #recaptcha-container {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="recaptcha-container"></div>
+    <script>
+      // TODO: Replace with your Firebase project configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAUlPX1LdpI8IAzqVnmd--jqIci0yh4C-U",
+    authDomain: "promptlyai-c8ce5.firebaseapp.com",
+    projectId: "promptlyai-c8ce5",
+    storageBucket: "promptlyai-c8ce5.firebasestorage.app",
+    messagingSenderId: "195154702792",
+    appId: "1:195154702792:web:21a24b22569e56ea28d0fd",
+    measurementId: "G-FDJJFFN5QH"
+  };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+
+      // Initialize reCAPTCHA verifier
+      const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        size: 'invisible', // 'normal' or 'invisible'
+        callback: (response) => {
+          // reCAPTCHA solved, proceed to get the token
+          onRecaptchaVerified(response);
+        },
+        'expired-callback': () => {
+          // Response expired. Reset reCAPTCHA.
+          recaptchaVerifier.reset();
+        }
+      }, auth);
+
+      // Render the reCAPTCHA (necessary for invisible reCAPTCHA)
+      recaptchaVerifier.render().then((widgetId) => {
+        // Optionally store the widgetId if needed
+      });
+
+      // Function to handle successful reCAPTCHA verification
+      function onRecaptchaVerified(token) {
+        // Send the token to the parent window
+        window.parent.postMessage({ token: token }, '*');
+      }
+
+      // Optionally, trigger reCAPTCHA verification programmatically
+      // For example, upon page load or a specific event
+      window.onload = () => {
+        recaptchaVerifier.verify().then(onRecaptchaVerified).catch((error) => {
+          console.error("reCAPTCHA verification failed:", error);
+        });
+      };
+    </script>
+  </body>
+</html>
